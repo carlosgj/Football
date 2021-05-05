@@ -1,3 +1,6 @@
 *.b#*
 *.s#*
 *.l#*
+Football.X/nbproject/Makefile-*
+Football.X/nbproject/Package-*
+Football.X/nbproject/private/
