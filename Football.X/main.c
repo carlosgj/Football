@@ -50,7 +50,16 @@ void init(void){
     UART_Init();
     __delay_ms(10);
 #endif
-    printf("done %d", 2);
+    
+    printf("Initializing SAT\n");
+    satInit();
+    printf("SAT initialized.\n");
+    
+    printf("Initializing GPS\n");
+    gpsInit();
+    printf("GPS initialized.\n");
+    
+    printf("Initialization done.\n");
 #if defined(LOOPOUT) || defined(MSOUT)
     TRISAbits.TRISA0 = OUTPUT;
 #endif

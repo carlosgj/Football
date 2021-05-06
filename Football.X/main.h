@@ -7,6 +7,8 @@
 #include "common.h"
 #include "UART.h"
 #include "time.h"
+#include "sat.h"
+#include "gps.h"
 
 #define MAIN_LOOP_PER (10)
 
