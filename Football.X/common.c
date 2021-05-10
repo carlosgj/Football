@@ -7,3 +7,8 @@
 //    dest[2] = (val%10)+48;
 //    dest[3] = 0;
 //}
+
+void fatal(void){
+    printf("FATAL\n");
+    RESET();
+}

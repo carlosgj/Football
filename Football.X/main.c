@@ -4,9 +4,10 @@ void main(void) {
     getResetCause();
     init();
     while(TRUE){
+        periodicTasks();
         switch(state){
             case STATE_SLEEP:
-                //???
+                runSleep();
                 break;
             case STATE_IDLE:
                 runIdle();
@@ -15,7 +16,7 @@ void main(void) {
                 runEmergency();
                 break;
             default:
-                //PANIC
+                fatal();
                 break;
         }
     }
@@ -44,12 +45,14 @@ void init(void){
     memset(systErr.all, 0, SYST_ERR_LEN); //Initialize system error counters
     
     timerInit();
-    __delay_ms(400);
+    __delay_ms(500);
     
 #ifdef SERIAL_DEBUG
     UART_Init();
     __delay_ms(10);
 #endif
+    printf("Serial initialized.\n");
+    printf("SW ver: %s\n", SW_VER_STR);
     
     printf("Initializing SAT\n");
     satInit();
@@ -66,19 +69,22 @@ void init(void){
     state = STATE_IDLE;
 }
 
-void runIdle(void){
-    if((unsigned int)(msCount - lastMainRun) < MAIN_LOOP_PER){
-        return;
-    }
-    lastMainRun = msCount;
+void periodicTasks(){
 #ifdef LOOPOUT
     LATAbits.LATA0 = !LATAbits.LATA0;
 #endif
-    
-    //Check if this loop time exceeded MAIN_LOOP_PER
-    if((msCount - lastMainRun) > MAIN_LOOP_PER){
-        systErr.loopOverruns++;
-    }
+}
+
+void runIdle(void){
+    gpsPeriodic();
+    satPeriodic();
+}
+
+void runSleep(void){
+    //Update stuff
+    printf("Sleeping.\n");
+    SLEEP();
+    asm("NOP");
 }
 
 void runEmergency(void){

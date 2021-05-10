@@ -2,4 +2,5 @@
 #include "sat.h"
 
 void satInit(void) {
+    FIFOInit(&satRxBuf);
 }

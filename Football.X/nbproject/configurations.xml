@@ -13,6 +13,8 @@
       <itemPath>display.h</itemPath>
       <itemPath>sat.h</itemPath>
       <itemPath>gps.h</itemPath>
+      <itemPath>UI.h</itemPath>
+      <itemPath>FIFO.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -27,6 +29,8 @@
       <itemPath>UART.c</itemPath>
       <itemPath>sat.c</itemPath>
       <itemPath>gps.c</itemPath>
+      <itemPath>UI.c</itemPath>
+      <itemPath>FIFO.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

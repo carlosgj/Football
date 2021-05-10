@@ -73,8 +73,11 @@ enum ResetCause {
 enum ResetCause resetCause = RS_INVALID;
 enum SystemState state = STATE_STARTUP;
 unsigned int msCount = 0;
+unsigned char txMessage[50];
+unsigned char rxMessage[50];
 
 void ItoA(unsigned char val, char* dest);
+void fatal(void);
 
 #endif
 
