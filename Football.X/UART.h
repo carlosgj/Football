@@ -4,6 +4,9 @@
 #include <xc.h> // include processor files - each processor file is guarded.  
 #include "common.h"
 #include "commConstants.h"
+#include "FIFO.h"
+
+FIFO UARTRxBuf;
 
 void UART_Init(void);
 void putch(unsigned char theByte);

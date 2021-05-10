@@ -17,6 +17,9 @@ unsigned char FIFOPush(FIFO* fifo, unsigned char value){
         return 0;
     }
     else{
+#ifdef FIFO_DEBUG
+        printf("FIFO Overflow!\n");
+#endif
         fifo->overflowCount++;
         return 1;
     }

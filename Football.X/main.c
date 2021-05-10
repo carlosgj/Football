@@ -9,14 +9,14 @@ void main(void) {
             case STATE_SLEEP:
                 runSleep();
                 break;
-            case STATE_IDLE:
-                runIdle();
+            case STATE_ON:
+                runOn();
                 break;
             case STATE_EMERGENCY:
                 runEmergency();
                 break;
             default:
-                fatal();
+                fatal("Invalid state.\n");
                 break;
         }
     }
@@ -54,6 +54,10 @@ void init(void){
     printf("Serial initialized.\n");
     printf("SW ver: %s\n", SW_VER_STR);
     
+    printf("Initializing UI\n");
+    UIInit();
+    printf("UI initialized.\n");
+    
     printf("Initializing SAT\n");
     satInit();
     printf("SAT initialized.\n");
@@ -66,22 +70,40 @@ void init(void){
 #if defined(LOOPOUT) || defined(MSOUT)
     TRISAbits.TRISA0 = OUTPUT;
 #endif
-    state = STATE_IDLE;
+    setState(STATE_ON);
 }
 
+// This function runs on EVERY main loop, regardless of state. 
+// One of the main things it does is to monitor certain switches 
+// to see if we need to transition to a different mode. 
 void periodicTasks(){
 #ifdef LOOPOUT
     LATAbits.LATA0 = !LATAbits.LATA0;
 #endif
+    checkSwitches();
+    if(emergencySwitch.debouncedValue){
+        setState(STATE_EMERGENCY);
+    }
+    else{
+        if(UISwitch.debouncedValue){
+            setState(STATE_ON);
+        }
+        else{
+            setState(STATE_SLEEP);
+        }
+    }
+    //Memory scan increment
 }
 
-void runIdle(void){
+void runOn(void){
     gpsPeriodic();
     satPeriodic();
+    if(UISwitch.debouncedValue){
+        updateDisplay();         
+    }
 }
 
 void runSleep(void){
-    //Update stuff
     printf("Sleeping.\n");
     SLEEP();
     asm("NOP");
@@ -89,6 +111,76 @@ void runSleep(void){
 
 void runEmergency(void){
     
+}
+
+void setState(enum SystemState newState){
+    printf("Transition from %d to %d requested\n", state, newState);
+    if(newState == state){
+        return;
+    }
+    switch(state){
+        case STATE_STARTUP:
+            if(newState == STATE_ON){
+                //This is expected to happen once per boot
+                state = STATE_ON;
+                printf("Transitioning from STATE_STARTUP to STATE_ON.\n");
+            }
+            else{
+                printf("Illegal state transition requested: STATE_STARTUP to %d\n", newState);
+            }
+            break;
+        case STATE_SLEEP:
+            switch(newState){
+                case STATE_EMERGENCY:
+                    printf("Emergency mode requested.\n");
+                case STATE_ON:
+                    printf("Waking up.\n");
+                    state = newState;
+                    //Do wakeup timer stuff
+                    break;
+                default:
+                    printf("Illegal state transition requested: STATE_SLEEP to %d\n", newState);
+            }
+            break;
+        case STATE_EMERGENCY:
+            //verify that emergency switch isn't on
+            if(emergencySwitch.debouncedValue || txInProgress){
+                //Switch is still on 
+                printf("Transition from STATE_EMERGENCY to %d disallowed while emergency switch is on.\n", newState);
+            }
+            else{
+                switch(newState){
+                    case STATE_ON:
+                    case STATE_SLEEP:
+                        printf("Transitioning from STATE_EMERGENCY to %d\n", newState);
+                        state = newState;
+                        break;
+                    default:
+                        printf("Illegal state transition requested: STATE_EMERGENCY to %d\n", newState);
+                        break;
+                }
+            }
+            break;
+        case STATE_ON:
+            switch(newState){
+                case STATE_SLEEP:
+                    printf("Going to sleep.\n");
+                    state = newState;
+                    break;
+                case STATE_EMERGENCY:
+                    printf("Emergency mode requested.\n");
+                    state = newState;
+                    break;
+                default:
+                    printf("Illegal state transition requested: STATE_ON to %d\n", newState);
+                    break;
+            }
+            break;
+        case STATE_UNKNOWN:
+        default:
+            fatal("Current state invalid.\n");
+            break;
+    }
 }
 
 void getResetCause(void){

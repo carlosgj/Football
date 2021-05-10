@@ -48,11 +48,11 @@ union SystStatus_t{
 } systStat;
 
 enum SystemState{
-    STATE_STARTUP,
-    STATE_SLEEP,
-    STATE_IDLE,
-    STATE_EMERGENCY,
-    STATE_UNKNOWN
+    STATE_STARTUP = 1,
+    STATE_SLEEP = 2,
+    STATE_ON = 3,
+    STATE_EMERGENCY = 4,
+    STATE_UNKNOWN = 0
 };
 
 enum ResetCause {
@@ -77,7 +77,7 @@ unsigned char txMessage[50];
 unsigned char rxMessage[50];
 
 void ItoA(unsigned char val, char* dest);
-void fatal(void);
+void fatal(const char * message);
 
 #endif
 

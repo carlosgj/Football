@@ -11,6 +11,7 @@
 //unsigned char satTxBuf[SAT_TX_BUF_LEN];
 
 FIFO satRxBuf;
+unsigned char txInProgress = FALSE;
 
 void satInit(void);
 void satSendBuffer(unsigned char *buf, unsigned char len, unsigned char override, unsigned char retry);

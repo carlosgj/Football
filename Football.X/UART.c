@@ -2,6 +2,7 @@
 #include "UART.h"
 
 void UART_Init(void){
+    FIFOInit(&UARTRxBuf);
     
     //Setup UART pins
     ANSELBbits.ANSELB0 = FALSE;
@@ -30,4 +31,8 @@ void putch(unsigned char theByte){
     U1TXB = theByte;
     while(!U1ERRIRbits.TXMTIF){
     }
+}
+
+void __interrupt(irq(U1RX),high_priority) UARTRxISR(void){
+    FIFOPush(&UARTRxBuf, U1RXB);
 }

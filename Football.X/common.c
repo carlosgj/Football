@@ -8,7 +8,7 @@
 //    dest[3] = 0;
 //}
 
-void fatal(void){
-    printf("FATAL\n");
+void fatal(const char * message){
+    printf("FATAL: %s", message);
     RESET();
 }
