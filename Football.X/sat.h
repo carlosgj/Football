@@ -16,6 +16,7 @@ unsigned char txInProgress = FALSE;
 void satInit(void);
 void satSendBuffer(unsigned char *buf, unsigned char len, unsigned char override, unsigned char retry);
 void satPeriodic(void);
+void satSendMessage(unsigned char *data, unsigned char len);
 
 #endif
 

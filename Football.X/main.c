@@ -54,6 +54,10 @@ void init(void){
     printf("Serial initialized.\n");
     printf("SW ver: %s\n", SW_VER_STR);
     
+    printf("Initializing power control\n");
+    powerInit();
+    printf("Power control initialized.\n");
+    
     printf("Initializing UI\n");
     UIInit();
     printf("UI initialized.\n");
@@ -80,6 +84,9 @@ void periodicTasks(){
 #ifdef LOOPOUT
     LATAbits.LATA0 = !LATAbits.LATA0;
 #endif
+    if(state == STATE_SLEEP){
+        msCount += 1000; //Assume we've been asleep for at least a second
+    }
     checkSwitches();
     if(emergencySwitch.debouncedValue){
         setState(STATE_EMERGENCY);
@@ -96,6 +103,7 @@ void periodicTasks(){
 }
 
 void runOn(void){
+    enableHPReg(TRUE);
     gpsPeriodic();
     satPeriodic();
     if(UISwitch.debouncedValue){
@@ -104,6 +112,7 @@ void runOn(void){
 }
 
 void runSleep(void){
+    enableHPReg(FALSE);
     printf("Sleeping.\n");
     SLEEP();
     asm("NOP");
@@ -114,7 +123,7 @@ void runEmergency(void){
 }
 
 void setState(enum SystemState newState){
-    printf("Transition from %d to %d requested\n", state, newState);
+    //printf("Transition from %d to %d requested\n", state, newState);
     if(newState == state){
         return;
     }
@@ -134,7 +143,7 @@ void setState(enum SystemState newState){
                 case STATE_EMERGENCY:
                     printf("Emergency mode requested.\n");
                 case STATE_ON:
-                    printf("Waking up.\n");
+                    printf("Transitioning from STATE_SLEEP to STATE_ON.\n");
                     state = newState;
                     //Do wakeup timer stuff
                     break;
@@ -164,7 +173,7 @@ void setState(enum SystemState newState){
         case STATE_ON:
             switch(newState){
                 case STATE_SLEEP:
-                    printf("Going to sleep.\n");
+                    printf("Transitioning from STATE_ON to STATE_SLEEP\n");
                     state = newState;
                     break;
                 case STATE_EMERGENCY:

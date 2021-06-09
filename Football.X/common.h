@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <pic18f47q84.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 //######### Debug options ###########
 #define SERIAL_DEBUG
@@ -15,6 +16,8 @@
 //Uncomment AT MOST ONE of the following to send signals to the test point
 //#define LOOPOUT
 //#define MSOUT
+
+//#define DUMMY_SAT_TX
 
 #define TRUE 1
 #define FALSE 0

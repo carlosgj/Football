@@ -10,6 +10,7 @@
 #include "sat.h"
 #include "gps.h"
 #include "UI.h"
+#include "power.h"
 
 #define MAIN_LOOP_PER (10)
 
