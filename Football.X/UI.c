@@ -4,6 +4,10 @@
 void UIInit(void){
     UI_SWITCH_TRIS = INPUT;
     UI_SWITCH_WPU = TRUE;
+    
+    //Setup interrupts
+    IOCBNbits.IOCBN4 = TRUE;
+    IOCBPbits.IOCBP4 = TRUE;
 }
 
 void updateDisplay(void){
@@ -27,4 +31,15 @@ void updateSwitch(Switch *sw, unsigned char value){
             sw->lastTransition = msCount;
         }
     }
+}
+
+void __interrupt(irq(IOC), low_priority) UI_Sw_N_ISR(void){
+    if(IOCBFbits.IOCBF4){
+        IOCBFbits.IOCBF4 = FALSE;
+        printf("IOC on UI sw\n");
+        return;
+    }
+    
+    printf("IOC!\n");
+    
 }

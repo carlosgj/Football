@@ -33,6 +33,10 @@ void init(void){
 #ifdef LOOPOUT
     TRISAbits.TRISA4 = OUTPUT;
 #endif
+    
+    //Enable IOC
+    PIE0bits.IOCIE = TRUE;
+    
     INTEN;
     
     //All pins to digital
@@ -255,4 +259,5 @@ void getResetCause(void){
 void __interrupt(irq(default),high_priority) DefaultISR(unsigned char id){
     systErr.unhandledInt++;
     systErr.lastUnhandledInt = id;
+    printf("Unhandled interrupt!\n");
 }
