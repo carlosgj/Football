@@ -3,7 +3,7 @@
 
 #include <xc.h> 
 
-#define FIFO_DEBUG
+//#define FIFO_DEBUG
 
 #ifdef FIFO_DEBUG
 #include <stdio.h>

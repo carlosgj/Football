@@ -2,6 +2,7 @@
 #define GPS_H
 
 #include <xc.h> 
+#include <string.h>
 #include "common.h"
 #include "FIFO.h"
 
@@ -34,13 +35,23 @@ struct GeoPosition lastFixPosition;
 struct GPSMetaData lastFixInfo;
 
 FIFO gpsBuffer;
-unsigned char NMEASentenceBuffer[100]; //TBD
+unsigned char NMEASentenceBuffer[128]; //TBD
+unsigned char NMEASentencePtr = 0;
+
+bool sentenceInProgress = FALSE;
+
+unsigned char parsePtr = 6;
+unsigned char parseBuf[16];
+unsigned char parseBufPtr = 0;
+
 
 void gpsInit(void);
 void gpsCommCheck(void);
 void gpsBufferReadTask(void);
 void gpsParseSentence(void);
 void gpsPeriodic(void);
+void processGPSSentence();
+void getNextChars(void);
 
 #endif
 
