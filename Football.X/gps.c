@@ -85,9 +85,9 @@ void processGPSSentence(void){
     }
     
     unsigned char checksum = 0;
-    unsigned char i; 
-    for(i=1; i<(NMEASentencePtr-5); i++){
-        checksum ^= NMEASentenceBuffer[i];
+    unsigned char checksumCounter; 
+    for(checksumCounter=1; checksumCounter<(NMEASentencePtr-5); checksumCounter++){
+        checksum ^= NMEASentenceBuffer[checksumCounter];
     }
     //printf("Calc checksum: 0x%x\n", checksum);
     char checksumStr[3];
@@ -116,21 +116,63 @@ void processGPSSentence(void){
         
         getNextChars();
         printf("Timestamp: %s\n", parseBuf);
+        //Time is in HHMMSS format
+        lastFixInfo.timestamp.hour = dumbAtoI(parseBuf);
+        lastFixInfo.timestamp.minute = dumbAtoI(parseBuf+2);
+        lastFixInfo.timestamp.second = dumbAtoI(parseBuf+4);
         
         getNextChars();
         printf("Validity: %s\n", parseBuf);
+        switch(parseBuf[0]){
+            case 'A':
+                //Valid data
+                gpsGood = TRUE;
+                break;
+            case 'V':
+                //Invalid
+                gpsGood = FALSE;
+                break;
+            default:
+                gpsGood = FALSE;
+                printf("Invalid validity flag.\n");
+                break;
+        }
+        
         
         getNextChars();
         printf("Latitude: %s\n", parseBuf);
+        lastFixInfo.latitude = atof(parseBuf);
         
         getNextChars();
         printf("N/S: %s\n", parseBuf);
+        switch(parseBuf[0]){
+            case 'N':
+                break;
+            case 'S':
+                lastFixInfo.latitude = -lastFixInfo.latitude;
+            default:
+                gpsGood = FALSE;
+                printf("Invalid N/S flag.\n");
+                break;
+        }
+        
         
         getNextChars();
         printf("Longitude: %s\n", parseBuf);
+        lastFixInfo.longitude = atof(parseBuf);
         
         getNextChars();
         printf("E/W: %s\n", parseBuf);
+        switch(parseBuf[0]){
+            case 'E':
+                break;
+            case 'W':
+                lastFixInfo.longitude = -lastFixInfo.longitude;
+            default:
+                gpsGood = FALSE;
+                printf("Invalid E/W flag.\n");
+                break;
+        }
         
         getNextChars();
         printf("Knots: %s\n", parseBuf);
@@ -140,12 +182,64 @@ void processGPSSentence(void){
         
         getNextChars();
         printf("Datestamp: %s\n", parseBuf);
+        //Date is in DDMMYY format
+        lastFixInfo.timestamp.day = dumbAtoI(parseBuf);
+        lastFixInfo.timestamp.month = dumbAtoI(parseBuf+2);
+        lastFixInfo.timestamp.year = dumbAtoI(parseBuf+4);
         
         getNextChars();
         printf("Variation: %s\n", parseBuf);
         
         getNextChars();
         printf("E/W: %s\n", parseBuf);
+        
+        return;
+    }
+    
+    if(strcmp(sentenceType, "GSA") == 0){
+        printf("Got GSA sentence\n");
+        printf("%s", NMEASentenceBuffer);
+        
+        //Mode selection
+        getNextChars();
+        
+        //Mode
+        getNextChars();
+        
+        //SV IDs
+        unsigned char SVcounter; 
+        for(SVcounter=0; SVcounter<12; SVcounter++){
+            getNextChars();
+        }
+        
+        //PDOP
+        getNextChars();
+        
+        //HDOP
+        getNextChars();
+        lastFixInfo.hdop = (uint8_t)(atof(parseBuf)*10);
+        
+        //VDOP
+        getNextChars();
+        
+        return;
+    }
+    
+    if(strcmp(sentenceType, "GSV") == 0){
+        printf("Got GSV sentence\n");
+        printf("%s", NMEASentenceBuffer);
+        
+        //Message count
+        getNextChars();
+        
+        //Message index
+        getNextChars();
+        
+        //Total SVs
+        getNextChars();
+        lastFixInfo.nSats = atoi(parseBuf);
+        
+        return;
     }
 }
 
@@ -158,6 +252,14 @@ void getNextChars(){
         parseBuf[parseBufPtr++] = NMEASentenceBuffer[parsePtr++];
     }
     parseBuf[parseBufPtr] = 0;
+}
+
+//Only works for *exactly* two-character strings!
+unsigned char dumbAtoI(unsigned char * buf){
+    unsigned char retval = 0;
+    retval += (buf[0] - 0x30)*10; //tens place
+    retval += (buf[1] - 0x30); //ones place
+    return retval;
 }
 
 

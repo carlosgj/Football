@@ -3,36 +3,30 @@
 
 #include <xc.h> 
 #include <string.h>
+#include <stdlib.h>
 #include "common.h"
 #include "FIFO.h"
 
 struct DateTime{
-    uint16_t year;
+    uint8_t year;
     uint8_t month;
-    uint16_t day;
+    uint8_t day;
     uint8_t hour;
     uint8_t minute;
     uint8_t second;
 };
 
-struct GeoPosition{
-    int16_t intLatitude;
-    uint16_t fracLatitude;
-    int16_t intLongitude;
-    uint16_t fracLongitude;
+struct GPSData{
+    struct DateTime timestamp;
+    float latitude;
+    float longitude;
     uint16_t altitude;
-};
-
-struct GPSMetaData{
-    uint8_t quality;
     uint8_t nSats;
     uint8_t hdop; //HDOP * 10
 };
 
-unsigned char gpsGood;
-struct DateTime lastFixTime;
-struct GeoPosition lastFixPosition;
-struct GPSMetaData lastFixInfo;
+unsigned char gpsGood = FALSE;
+struct GPSData lastFixInfo;
 
 FIFO gpsBuffer;
 unsigned char NMEASentenceBuffer[128]; //TBD
@@ -52,6 +46,7 @@ void gpsParseSentence(void);
 void gpsPeriodic(void);
 void processGPSSentence();
 void getNextChars(void);
+unsigned char dumbAtoI(unsigned char * buf);
 
 #endif
 

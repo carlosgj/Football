@@ -164,8 +164,12 @@ void setState(enum SystemState newState){
             else{
                 switch(newState){
                     case STATE_ON:
+                        printf("Transitioning from STATE_EMERGENCY to STATE_ON\n");
+                        state = newState;
+                        break;
                     case STATE_SLEEP:
-                        printf("Transitioning from STATE_EMERGENCY to %d\n", newState);
+                        printf("Transitioning from STATE_EMERGENCY to STATE_SLEEP\n");
+                        gpsGood = FALSE;
                         state = newState;
                         break;
                     default:
@@ -178,6 +182,7 @@ void setState(enum SystemState newState){
             switch(newState){
                 case STATE_SLEEP:
                     printf("Transitioning from STATE_ON to STATE_SLEEP\n");
+                    gpsGood = FALSE;
                     state = newState;
                     break;
                 case STATE_EMERGENCY:
