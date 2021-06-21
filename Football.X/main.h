@@ -16,6 +16,8 @@
 
 unsigned int lastMainRun = 0;
 
+unsigned int asyncTlmCounter = 0;
+
 void init(void);
 void periodicTasks();
 void runOn(void);

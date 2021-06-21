@@ -111,18 +111,24 @@ void processGPSSentence(void){
         return;
     }
     if(strcmp(sentenceType, "RMC") == 0){
+#ifdef GPS_DEBUG
         printf("Got RMC sentence\n");
         printf("%s", NMEASentenceBuffer);
+#endif
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Timestamp: %s\n", parseBuf);
+#endif
         //Time is in HHMMSS format
         lastFixInfo.timestamp.hour = dumbAtoI(parseBuf);
         lastFixInfo.timestamp.minute = dumbAtoI(parseBuf+2);
         lastFixInfo.timestamp.second = dumbAtoI(parseBuf+4);
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Validity: %s\n", parseBuf);
+#endif
         switch(parseBuf[0]){
             case 'A':
                 //Valid data
@@ -140,11 +146,15 @@ void processGPSSentence(void){
         
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Latitude: %s\n", parseBuf);
+#endif
         lastFixInfo.latitude = atof(parseBuf);
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("N/S: %s\n", parseBuf);
+#endif
         switch(parseBuf[0]){
             case 'N':
                 break;
@@ -158,16 +168,21 @@ void processGPSSentence(void){
         
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Longitude: %s\n", parseBuf);
+#endif
         lastFixInfo.longitude = atof(parseBuf);
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("E/W: %s\n", parseBuf);
+#endif
         switch(parseBuf[0]){
             case 'E':
                 break;
             case 'W':
                 lastFixInfo.longitude = -lastFixInfo.longitude;
+                break;
             default:
                 gpsGood = FALSE;
                 printf("Invalid E/W flag.\n");
@@ -175,30 +190,42 @@ void processGPSSentence(void){
         }
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Knots: %s\n", parseBuf);
+#endif
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Course: %s\n", parseBuf);
+#endif
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Datestamp: %s\n", parseBuf);
+#endif
         //Date is in DDMMYY format
         lastFixInfo.timestamp.day = dumbAtoI(parseBuf);
         lastFixInfo.timestamp.month = dumbAtoI(parseBuf+2);
         lastFixInfo.timestamp.year = dumbAtoI(parseBuf+4);
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("Variation: %s\n", parseBuf);
+#endif
         
         getNextChars();
+#ifdef GPS_DEBUG
         printf("E/W: %s\n", parseBuf);
+#endif
         
         return;
     }
     
     if(strcmp(sentenceType, "GSA") == 0){
+#ifdef GPS_DEBUG
         printf("Got GSA sentence\n");
         printf("%s", NMEASentenceBuffer);
+#endif
         
         //Mode selection
         getNextChars();
@@ -226,8 +253,10 @@ void processGPSSentence(void){
     }
     
     if(strcmp(sentenceType, "GSV") == 0){
+#ifdef GPS_DEBUG
         printf("Got GSV sentence\n");
         printf("%s", NMEASentenceBuffer);
+#endif
         
         //Message count
         getNextChars();
@@ -241,6 +270,19 @@ void processGPSSentence(void){
         
         return;
     }
+}
+
+void sendGPSTelem(void){
+    if(gpsGood){
+        printf("GPS: %d-%d-%d %d:%d:%d %f %f %d ft HDOP %d %d SVs\n", lastFixInfo.timestamp.year, lastFixInfo.timestamp.month,
+                lastFixInfo.timestamp.day, lastFixInfo.timestamp.hour, lastFixInfo.timestamp.minute,
+                lastFixInfo.timestamp.second, lastFixInfo.latitude, lastFixInfo.longitude, lastFixInfo.altitude,
+                lastFixInfo.hdop, lastFixInfo.nSats);
+    }
+    else{
+        printf("GPS: no fix. %d SVs in view.\n", lastFixInfo.nSats);
+    }
+    
 }
 
 void getNextChars(){

@@ -107,8 +107,16 @@ void periodicTasks(){
 }
 
 void runOn(void){
+    asyncTlmCounter++;
+    if(asyncTlmCounter == 50000){
+        asyncTlmCounter = 0;
+    }
     enableHPReg(TRUE);
     gpsPeriodic();
+    if(asyncTlmCounter == 0){
+        sendGPSTelem();
+    }
+    
     satPeriodic();
     if(UISwitch.debouncedValue){
         updateDisplay();         

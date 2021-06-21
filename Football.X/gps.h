@@ -7,6 +7,8 @@
 #include "common.h"
 #include "FIFO.h"
 
+//#define GPS_DEBUG
+
 struct DateTime{
     uint8_t year;
     uint8_t month;
@@ -46,6 +48,7 @@ void gpsParseSentence(void);
 void gpsPeriodic(void);
 void processGPSSentence();
 void getNextChars(void);
+void sendGPSTelem(void);
 unsigned char dumbAtoI(unsigned char * buf);
 
 #endif
